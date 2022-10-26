@@ -3,13 +3,14 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/spf13/cobra"
 	"os"
 	"selfhelp-iptables/config"
 	"selfhelp-iptables/ipt"
 	"selfhelp-iptables/server"
 	"selfhelp-iptables/utils"
+
+	"github.com/fatih/color"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -38,7 +39,7 @@ Github: https://github.com/aoyouer/selfhelp-iptables
 
 	startCmd = &cobra.Command{
 		Use:     "start",
-		Short: "Start protecting",
+		Short:   "Start protecting",
 		Example: "selfhelp-iptables start -a adminkey -u userkey -p 22,23",
 		// 当前命令只是用来初始化配置、之后便进入交互模式
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
@@ -62,15 +63,15 @@ Github: https://github.com/aoyouer/selfhelp-iptables
 					return
 				}
 				config.SetConfig(&config.Config{
-					AddThreshold: addThreshold,
-					AutoReset:    autoReset,
-					AdminKey:     adminKeySetting,
-					UserKey:      userKeySetting,
-					ListenPort:   listenPort,
-					ProtectPorts: protectPorts,
-					WhitePorts:   whitePorts,
-					Reject:       reject,
-					RateTrigger:  rateTrigger,
+					AddThreshold:        addThreshold,
+					AutoReset:           autoReset,
+					AdminKey:            adminKeySetting,
+					UserKey:             userKeySetting,
+					ListenPort:          listenPort,
+					ProtectPorts:        protectPorts,
+					WhitePorts:          whitePorts,
+					Reject:              reject,
+					RateTrigger:         rateTrigger,
 					ReverseProxySupport: reverseProxySupport,
 				})
 				// 启动程序
@@ -111,10 +112,10 @@ func init() {
 	startCmd.Flags().StringVarP(&listenPort, "listen", "l", "8080", "Http listen port")
 	startCmd.Flags().StringVarP(&protectPorts, "protect", "p", "", "Ports need protect, splited with ','")
 	startCmd.Flags().StringVarP(&whitePorts, "white", "w", "", "Whitelist ports allow access, splited with','")
-	startCmd.Flags().IntVarP(&addThreshold, "threshold", "t", 8, "Auto add whitelist after how many failed connections")
+	startCmd.Flags().IntVarP(&addThreshold, "threshold", "t", 0, "Auto add whitelist after how many failed connections")
 	startCmd.Flags().StringVarP(&autoReset, "autoreset", "r", "", "Auto reset all records options: hh(half hour) h(hour) hd(half day) d(day) w(week)")
 	startCmd.Flags().BoolVarP(&reject, "reject", "d", false, "Send icmp packet after blocking")
 	startCmd.Flags().StringVar(&rateTrigger, "trigger", "", "Add whitelist when syn packet rate exceeds threshold. eg: 10/3 means 10 syn packets in 3 seconds")
-	startCmd.Flags().BoolVar(&reverseProxySupport,"reverse",false,"Enable reverse proxy support")
+	startCmd.Flags().BoolVar(&reverseProxySupport, "reverse", false, "Enable reverse proxy support")
 	rootCmd.AddCommand(startCmd)
 }

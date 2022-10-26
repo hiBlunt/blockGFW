@@ -27,7 +27,6 @@ type Record struct {
 	Interface string
 }
 
-
 func ReadIPLogs() {
 	var logRecordPool = sync.Pool{
 		New: func() interface{} {
@@ -111,11 +110,28 @@ func ReadIPLogs() {
 						WhiteIPs[remoteIp] = true
 						AddIPWhitelist(remoteIp)
 					}
-				} else if isTriggerLog && !WhiteIPs[remoteIp] {
-					boldBlue.Printf("%s SYN速率触发 IP:%s SPT:%s DPT:%s TTL:%s [%s packets in %s seconds]\n", time.Now().Format("2006-01-02 15:04:05"), logRecord.SrcIp, logRecord.SrcPort, logRecord.DstPort, logRecord.TTL, pStr, tStr)
-					log.Printf("SYN速率触发,已为%s自动添加ip白名单\n", remoteIp)
-					WhiteIPs[remoteIp] = true
-					AddIPWhitelist(remoteIp)
+				}
+
+				if isTriggerLog {
+					thread := config.GetConfig().AddThreshold
+					rateTrigger := config.GetConfig().RateTrigger
+					// 当且仅当设置了SYN速率触发
+					if thread == 0 && rateTrigger != "" {
+						// TODO:需要检查RateTrigger形式是否合法
+						packetsNum, _ := strconv.Atoi(strings.Split(rateTrigger, "/")[0])
+						seconds, _ := strconv.Atoi(strings.Split(rateTrigger, "/")[1])
+						if seconds != 0 {
+							synRate := float32(packetsNum) / float32(seconds)
+							if !WhiteIPs[remoteIp] && RecordedIPs[remoteIp] > int(synRate) {
+								boldBlue.Printf("%s SYN速率触发 IP:%s SPT:%s DPT:%s TTL:%s [%s packets in %s seconds]\n",
+									time.Now().Format("2006-01-02 15:04:05"), logRecord.SrcIp, logRecord.SrcPort,
+									logRecord.DstPort, logRecord.TTL, pStr, tStr)
+								log.Printf("SYN速率触发,已为%s自动添加ip白名单\n", remoteIp)
+								WhiteIPs[remoteIp] = true
+								AddIPWhitelist(remoteIp)
+							}
+						}
+					}
 				}
 				logRecordPool.Put(logRecord)
 			}
