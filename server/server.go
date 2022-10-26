@@ -2,11 +2,12 @@ package server
 
 import (
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"selfhelp-iptables/config"
+
+	"github.com/fatih/color"
+	"github.com/gorilla/mux"
 )
 
 func StartServer() {
@@ -14,6 +15,7 @@ func StartServer() {
 	//开启go routine
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", HelloServer)
+	router.HandleFunc("/subscription", GetSubscription)
 	router.HandleFunc("/api/add", AddWhitelist)
 	router.HandleFunc("/api/ban/{ip}", AddBlackList)
 	router.HandleFunc("/api/list", ShowWhitelist)

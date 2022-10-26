@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 func CheckCommandExists(cmd string) bool {
@@ -33,7 +35,7 @@ func ExecCommandWithoutOutput(cmd string) string {
 	return string(result)
 }
 
-//注意时左闭右开
+// 注意时左闭右开
 func RemoveFromSlice(slice []string, s int) []string {
 	if s != len(slice)-1 {
 		return append(slice[:s], slice[s+1:]...)
@@ -44,7 +46,7 @@ func RemoveFromSlice(slice []string, s int) []string {
 	}
 }
 
-//检查文件是否存在
+// 检查文件是否存在
 func FileExist(path string) bool {
 	_, err := os.Lstat(path)
 	return !os.IsNotExist(err)
@@ -61,4 +63,13 @@ func CheckPorts(strPorts string) (result bool) {
 		}
 	}
 	return
+}
+
+func ReadFile(path string) (string, error) {
+	content, err := os.ReadFile(path)
+	if err != nil {
+		logrus.Errorf("%s is not found", path)
+		return "", err
+	}
+	return string(content), nil
 }

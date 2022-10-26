@@ -75,16 +75,44 @@ func AddWhitelist(w http.ResponseWriter, req *http.Request) {
 	// 需要对ip进行检查,
 	if keyAuthentication {
 		if len(strings.Split(remoteIP, ",")) == 1 {
-			ipt.AddIPWhitelist(remoteIP)
-			utils.CmdColorGreen.Println("添加ip白名单 " + remoteIP)
-			fmt.Fprintf(w, "添加ip白名单:"+remoteIP)
-			ipt.WhiteIPs[remoteIP] = true
+			// 避免重复添加
+			if _, ok := ipt.WhiteIPs[remoteIP]; !ok {
+				ipt.AddIPWhitelist(remoteIP)
+				utils.CmdColorGreen.Println("添加ip白名单 " + remoteIP)
+				fmt.Fprintf(w, "添加ip白名单:"+remoteIP)
+				ipt.WhiteIPs[remoteIP] = true
+			}
 		} else {
 			fmt.Fprintf(w, "错误的头部,尝试添加多个ip: "+remoteIP)
 		}
-
 	} else {
 		fmt.Fprintf(w, "key错误")
+	}
+}
+
+func GetSubscription(w http.ResponseWriter, req *http.Request) {
+	keyAuthentication := checkKey(req, false, "AddWhitelist")
+	remoteIP := getClientIP(req)
+	clientIP := strings.Split(remoteIP, ",")[0]
+	filePath := "subscription.txt"
+	if keyAuthentication {
+		subsContent, err := utils.ReadFile(filePath)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		utils.CmdColorGreen.Println("订阅内容已获取 " + clientIP)
+		fmt.Fprint(w, subsContent)
+		// 添加clientIP到白名单
+		if _, ok := ipt.WhiteIPs[clientIP]; !ok {
+			ipt.AddIPWhitelist(clientIP)
+			utils.CmdColorGreen.Println("添加ip白名单 " + clientIP)
+			ipt.WhiteIPs[remoteIP] = true
+		} else {
+			utils.CmdColorGreen.Println("已存在ip白名单 " + clientIP)
+		}
+	} else {
+		http.Error(w, "key 无效", http.StatusUnauthorized)
 	}
 }
 
