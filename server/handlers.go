@@ -94,7 +94,19 @@ func GetSubscription(w http.ResponseWriter, req *http.Request) {
 	keyAuthentication := checkKey(req, false, "AddWhitelist")
 	remoteIP := getClientIP(req)
 	clientIP := strings.Split(remoteIP, ",")[0]
-	filePath := "subscription.txt"
+	subsType := req.URL.Query().Get("type")
+	// 订阅类型只支持raw，clash两种
+	if subsType != "raw" && subsType != "clash" {
+		subsType = "raw"
+	}
+
+	filePath := ""
+	if subsType == "raw" {
+		filePath = "raw.subscription"
+	} else {
+		filePath = "clash.subscription"
+	}
+
 	if keyAuthentication {
 		subsContent, err := utils.ReadFile(filePath)
 		if err != nil {
