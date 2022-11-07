@@ -5,6 +5,7 @@ type Config struct {
 	AutoReset           string
 	AdminKey            string
 	UserKey             string
+	ListenIP            string
 	ListenPort          string
 	ProtectPorts        string
 	WhitePorts          string

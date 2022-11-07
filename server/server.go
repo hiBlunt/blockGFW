@@ -29,7 +29,7 @@ func StartServer() {
 
 	fmt.Println("Server start Port:"+cfg.ListenPort+" UserKey:"+cfg.UserKey+" AdminKey:"+cfg.AdminKey, "\n输入help查看控制台命令帮助")
 	color.Unset()
-	err := http.ListenAndServe("0.0.0.0:"+cfg.ListenPort, router)
+	err := http.ListenAndServe(cfg.ListenIP+":"+cfg.ListenPort, router)
 	if err != nil {
 		log.Fatal("Server error: " + err.Error())
 	}

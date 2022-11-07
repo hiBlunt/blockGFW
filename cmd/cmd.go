@@ -18,6 +18,7 @@ var (
 	autoReset           string // 自动重置
 	adminKeySetting     string
 	userKeySetting      string
+	listenIP            string
 	listenPort          string
 	protectPorts        string
 	whitePorts          string
@@ -67,6 +68,7 @@ Github: https://github.com/aoyouer/selfhelp-iptables
 					AutoReset:           autoReset,
 					AdminKey:            adminKeySetting,
 					UserKey:             userKeySetting,
+					ListenIP:            listenIP,
 					ListenPort:          listenPort,
 					ProtectPorts:        protectPorts,
 					WhitePorts:          whitePorts,
@@ -84,8 +86,6 @@ Github: https://github.com/aoyouer/selfhelp-iptables
 				startCron()
 				utils.CheckCommandExists("iptables")
 				ipt.InitIPtables(false)
-				// 开启一个协程实时读取 内核日志 过滤出尝试访问端口的ip
-				go ipt.ReadIPLogs()
 				go server.StartServer()
 				// 主协程读取用户输入并执行命令
 				for {
@@ -109,13 +109,12 @@ func Execute() {
 func init() {
 	startCmd.Flags().StringVarP(&adminKeySetting, "adminkey", "a", "", "Key used to control this system")
 	startCmd.Flags().StringVarP(&userKeySetting, "userkey", "u", "", "Key used to add whitelist through http api")
+	startCmd.Flags().StringVarP(&listenIP, "server", "s", "127.0.0.1", "Http listen ip")
 	startCmd.Flags().StringVarP(&listenPort, "listen", "l", "8080", "Http listen port")
 	startCmd.Flags().StringVarP(&protectPorts, "protect", "p", "", "Ports need protect, splited with ','")
 	startCmd.Flags().StringVarP(&whitePorts, "white", "w", "", "Whitelist ports allow access, splited with','")
-	startCmd.Flags().IntVarP(&addThreshold, "threshold", "t", 0, "Auto add whitelist after how many failed connections")
 	startCmd.Flags().StringVarP(&autoReset, "autoreset", "r", "", "Auto reset all records options: hh(half hour) h(hour) hd(half day) d(day) w(week)")
 	startCmd.Flags().BoolVarP(&reject, "reject", "d", false, "Send icmp packet after blocking")
-	startCmd.Flags().StringVar(&rateTrigger, "trigger", "", "Add whitelist when syn packet rate exceeds threshold. eg: 10/3 means 10 syn packets in 3 seconds")
 	startCmd.Flags().BoolVar(&reverseProxySupport, "reverse", false, "Enable reverse proxy support")
 	rootCmd.AddCommand(startCmd)
 }
