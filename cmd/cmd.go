@@ -86,13 +86,7 @@ Github: https://github.com/aoyouer/selfhelp-iptables
 				startCron()
 				utils.CheckCommandExists("iptables")
 				ipt.InitIPtables(false)
-				go server.StartServer()
-				// 主协程读取用户输入并执行命令
-				for {
-					var cmdIn string
-					fmt.Scan(&cmdIn)
-					cmdlineHandler(cmdIn)
-				}
+				server.StartServer()
 			}
 			return
 		},
