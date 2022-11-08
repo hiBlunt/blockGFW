@@ -8,7 +8,7 @@ User=root
 Restart=always
 RestartSec=3
 WorkingDirectory=/home/ubuntu/iptables
-ExecStart=/home/ubuntu/iptables/selfhelp-iptables start -u yourUserPass -a yourAdminPass -p youProtectPort
+ExecStart=/home/ubuntu/iptables/selfhelp-iptables start -u yourUserPass -a yourAdminPass -p youProtectPort --reverse True
 
 [Install]
 WantedBy=multi-user.target
